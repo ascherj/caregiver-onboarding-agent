@@ -1,127 +1,32 @@
 import { z } from 'zod'
 
 export const caregiverProfileSchema = z.object({
-  location: z.string().optional(),
-  languages: z.array(z.string()).optional(),
-  careTypes: z.array(z.string()).optional(),
-  hourlyRate: z.string().optional(),
-  qualifications: z.array(z.string()).optional(),
-  startDate: z.string().optional(),
-  generalAvailability: z.string().optional(),
-  yearsOfExperience: z.record(z.number()).optional(),
-  weeklyHours: z.string().optional(),
-  preferredAgeGroups: z.array(z.string()).optional(),
-  responsibilities: z.array(z.string()).optional(),
-  commuteDistance: z.string().optional(),
-  commuteType: z.string().optional(),
-  willDriveChildren: z.string().optional(),
-  accessibilityNeeds: z.string().optional(),
-  dietaryPreferences: z.array(z.string()).optional(),
-  additionalChildRate: z.string().optional(),
-  payrollRequired: z.string().optional(),
-  benefitsRequired: z.array(z.string()).optional(),
-  profilePictureUrl: z.string().optional(),
+  location: z.string().nullable().optional(),
+  languages: z.array(z.string()).nullable().optional(),
+  careTypes: z.array(z.string()).nullable().optional(),
+  hourlyRate: z.string().nullable().optional(),
+  qualifications: z.array(z.string()).nullable().optional(),
+  startDate: z.string().nullable().optional(),
+  generalAvailability: z.string().nullable().optional(),
+  yearsOfExperience: z.record(z.number()).nullable().optional(),
+  weeklyHours: z.string().nullable().optional(),
+  preferredAgeGroups: z.array(z.string()).nullable().optional(),
+  responsibilities: z.array(z.string()).nullable().optional(),
+  commuteDistance: z.string().nullable().optional(),
+  commuteType: z.string().nullable().optional(),
+  willDriveChildren: z.string().nullable().optional(),
+  accessibilityNeeds: z.string().nullable().optional(),
+  dietaryPreferences: z.array(z.string()).nullable().optional(),
+  additionalChildRate: z.string().nullable().optional(),
+  payrollRequired: z.string().nullable().optional(),
+  benefitsRequired: z.array(z.string()).nullable().optional(),
+  profilePictureUrl: z.string().nullable().optional(),
+})
+
+export const agentResponseSchema = z.object({
+  message: z.string().describe('Your conversational response to the user. Acknowledge what you extracted and ask the next question.'),
+  extractedData: caregiverProfileSchema.describe('Profile data extracted from the user\'s message. Only include fields the user mentioned. Use null for fields not mentioned.')
 })
 
 export type CaregiverProfile = z.infer<typeof caregiverProfileSchema>
-
-export const updateCaregiverProfileTool = {
-  type: "function" as const,
-  function: {
-    name: "update_caregiver_profile",
-    description: "CRITICAL: Extract and save caregiver profile information. Call this IMMEDIATELY when the user provides ANY profile data (location, languages, care types, rate, qualifications, availability, etc.). Include only the fields mentioned by the user. You can call this multiple times to update different fields.",
-    parameters: {
-      type: "object",
-      properties: {
-        location: {
-          type: "string",
-          description: "Geographic location (city, state, or general area)"
-        },
-        languages: {
-          type: "array",
-          items: { type: "string" },
-          description: "Languages spoken"
-        },
-        careTypes: {
-          type: "array",
-          items: { type: "string" },
-          description: "Types of care provided (e.g., infant care, toddler care, after-school care)"
-        },
-        hourlyRate: {
-          type: "string",
-          description: "Hourly rate with currency (e.g., $25/hour)"
-        },
-        qualifications: {
-          type: "array",
-          items: { type: "string" },
-          description: "Certifications, degrees, training (e.g., CPR, First Aid, CDA)"
-        },
-        startDate: {
-          type: "string",
-          description: "Availability start date"
-        },
-        generalAvailability: {
-          type: "string",
-          description: "Free-form schedule description"
-        },
-        yearsOfExperience: {
-          type: "object",
-          additionalProperties: { type: "number" },
-          description: "Years of experience breakdown by care type (e.g., {\"infant\": 5, \"toddler\": 3})"
-        },
-        weeklyHours: {
-          type: "string",
-          description: "Desired hours per week"
-        },
-        preferredAgeGroups: {
-          type: "array",
-          items: { type: "string" },
-          description: "Preferred age ranges"
-        },
-        responsibilities: {
-          type: "array",
-          items: { type: "string" },
-          description: "Specific duties willing to do"
-        },
-        commuteDistance: {
-          type: "string",
-          description: "Maximum commute distance"
-        },
-        commuteType: {
-          type: "string",
-          description: "Transportation method"
-        },
-        willDriveChildren: {
-          type: "string",
-          description: "Willing to drive children (Yes/No/Maybe)"
-        },
-        accessibilityNeeds: {
-          type: "string",
-          description: "Any accessibility requirements"
-        },
-        dietaryPreferences: {
-          type: "array",
-          items: { type: "string" },
-          description: "Dietary restrictions/preferences"
-        },
-        additionalChildRate: {
-          type: "string",
-          description: "Rate for additional children"
-        },
-        payrollRequired: {
-          type: "string",
-          description: "Payroll service needed"
-        },
-        benefitsRequired: {
-          type: "array",
-          items: { type: "string" },
-          description: "Desired benefits"
-        },
-        profilePictureUrl: {
-          type: "string",
-          description: "Profile photo URL"
-        }
-      }
-    }
-  }
-}
+export type AgentResponse = z.infer<typeof agentResponseSchema>

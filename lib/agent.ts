@@ -1,6 +1,7 @@
 import OpenAI from 'openai'
+import { zodResponseFormat } from 'openai/helpers/zod'
 import { SYSTEM_PROMPT } from './prompts'
-import { updateCaregiverProfileTool } from './schema'
+import { agentResponseSchema } from './schema'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || 'dummy-key-for-build',
@@ -13,72 +14,47 @@ export interface Message {
 
 export async function* streamChatResponse(
   messages: Message[],
-  onFunctionCall?: (args: any) => Promise<void>
+  onDataExtracted?: (data: any) => Promise<void>
 ) {
-  const stream = await openai.chat.completions.create({
-    model: 'gpt-4o',
+  const completion = await openai.chat.completions.create({
+    model: 'gpt-4o-2024-08-06',
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
       ...messages,
     ],
-    tools: [updateCaregiverProfileTool],
-    stream: true,
+    response_format: zodResponseFormat(agentResponseSchema, 'agent_response'),
     temperature: 0.8,
   })
 
-  let functionCallBuffer = {
-    id: '',
-    name: '',
-    arguments: '',
+  const response = completion.choices[0]?.message?.content
+
+  if (!response) {
+    throw new Error('No response from model')
   }
 
-  let hasContent = false
+  const parsed = JSON.parse(response)
+  
+  // Extract and save data if present
+  if (parsed.extractedData && onDataExtracted) {
+    await onDataExtracted(parsed.extractedData)
+  }
 
-  for await (const chunk of stream) {
-    const delta = chunk.choices[0]?.delta
-
-    if (!delta) continue
-
-    if (delta.content) {
-      hasContent = true
-      yield {
-        type: 'content' as const,
-        content: delta.content,
-      }
+  // Stream the message character by character for UI effect
+  const message = parsed.message || ''
+  for (let i = 0; i < message.length; i++) {
+    yield {
+      type: 'content' as const,
+      content: message[i],
     }
+    // Small delay to simulate streaming
+    await new Promise(resolve => setTimeout(resolve, 10))
+  }
 
-    if (delta.tool_calls) {
-      const toolCall = delta.tool_calls[0]
-      
-      if (toolCall.id) {
-        functionCallBuffer.id = toolCall.id
-      }
-      
-      if (toolCall.function?.name) {
-        functionCallBuffer.name = toolCall.function.name
-      }
-      
-      if (toolCall.function?.arguments) {
-        functionCallBuffer.arguments += toolCall.function.arguments
-      }
-    }
-
-    if (chunk.choices[0]?.finish_reason === 'tool_calls') {
-      if (functionCallBuffer.name && functionCallBuffer.arguments) {
-        try {
-          const args = JSON.parse(functionCallBuffer.arguments)
-          if (onFunctionCall) {
-            await onFunctionCall(args)
-          }
-          yield {
-            type: 'function_call' as const,
-            name: functionCallBuffer.name,
-            arguments: args,
-          }
-        } catch (error) {
-          console.error('Error parsing function arguments:', error)
-        }
-      }
+  // Yield extraction event if data was extracted
+  if (parsed.extractedData) {
+    yield {
+      type: 'extraction' as const,
+      data: parsed.extractedData,
     }
   }
 }

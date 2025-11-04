@@ -24,15 +24,16 @@ export async function POST(req: NextRequest) {
         try {
           for await (const chunk of streamChatResponse(
             messages,
-            async (args) => {
-              // Function call - update profile in database
+            async (extractedData) => {
+              // Update profile with extracted data
               try {
-                const validated = caregiverProfileSchema.parse(args)
+                const validated = caregiverProfileSchema.parse(extractedData)
                 
                 // Convert arrays and objects to JSON strings for SQLite
+                // Only update non-null fields
                 const dbData: any = {}
                 for (const [key, value] of Object.entries(validated)) {
-                  if (value !== undefined) {
+                  if (value !== undefined && value !== null) {
                     if (Array.isArray(value) || typeof value === 'object') {
                       dbData[key] = JSON.stringify(value)
                     } else {
@@ -41,10 +42,13 @@ export async function POST(req: NextRequest) {
                   }
                 }
 
-                await prisma.caregiverProfile.update({
-                  where: { id: profileId },
-                  data: dbData,
-                })
+                // Only update if we have data
+                if (Object.keys(dbData).length > 0) {
+                  await prisma.caregiverProfile.update({
+                    where: { id: profileId },
+                    data: dbData,
+                  })
+                }
               } catch (error) {
                 console.error('Error updating profile:', error)
               }

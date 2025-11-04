@@ -82,8 +82,8 @@ export default function ChatInterface({ profileId, onProfileUpdate }: ChatInterf
               if (parsed.type === 'content') {
                 assistantMessage += parsed.content
                 setMessages([...updatedMessages, { role: 'assistant', content: assistantMessage }])
-              } else if (parsed.type === 'function_call') {
-                // Profile updated
+              } else if (parsed.type === 'extraction') {
+                // Profile data was extracted
                 onProfileUpdate()
               }
             } catch (e) {
