@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model CaregiverProfile {
+  id                  String   @id @default(cuid())
+  
+  // Critical fields
+  location            String?
+  languages           String?  // JSON array
+  careTypes           String?  // JSON array
+  hourlyRate          String?
+  
+  // High-priority optional fields
+  qualifications      String?  // JSON array
+  startDate           String?
+  generalAvailability String?
+  yearsOfExperience   String?  // JSON object
+  weeklyHours         String?
+  
+  // Standard optional fields
+  preferredAgeGroups  String?  // JSON array
+  responsibilities    String?  // JSON array
+  commuteDistance     String?
+  commuteType         String?
+  willDriveChildren   String?
+  
+  // Additional details
+  accessibilityNeeds  String?
+  dietaryPreferences  String?  // JSON array
+  additionalChildRate String?
+  payrollRequired     String?
+  benefitsRequired    String?  // JSON array
+  
+  // System fields
+  status              String   @default("in_progress")
+  profilePictureUrl   String?
+  
+  // Metadata
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  conversationHistory String?  // JSON array of messages
+}

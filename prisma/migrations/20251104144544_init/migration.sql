@@ -1,0 +1,28 @@
+-- CreateTable
+CREATE TABLE "CaregiverProfile" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "location" TEXT,
+    "languages" TEXT,
+    "careTypes" TEXT,
+    "hourlyRate" TEXT,
+    "qualifications" TEXT,
+    "startDate" TEXT,
+    "generalAvailability" TEXT,
+    "yearsOfExperience" TEXT,
+    "weeklyHours" TEXT,
+    "preferredAgeGroups" TEXT,
+    "responsibilities" TEXT,
+    "commuteDistance" TEXT,
+    "commuteType" TEXT,
+    "willDriveChildren" TEXT,
+    "accessibilityNeeds" TEXT,
+    "dietaryPreferences" TEXT,
+    "additionalChildRate" TEXT,
+    "payrollRequired" TEXT,
+    "benefitsRequired" TEXT,
+    "status" TEXT NOT NULL DEFAULT 'in_progress',
+    "profilePictureUrl" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    "conversationHistory" TEXT
+);
