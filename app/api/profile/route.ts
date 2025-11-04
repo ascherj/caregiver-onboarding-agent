@@ -34,19 +34,36 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // Parse JSON fields back to objects/arrays
-    const parsed = {
-      ...profile,
-      languages: safeJsonParse(profile.languages, null),
-      careTypes: safeJsonParse(profile.careTypes, null),
-      qualifications: safeJsonParse(profile.qualifications, null),
-      yearsOfExperience: safeJsonParse(profile.yearsOfExperience, null),
-      preferredAgeGroups: safeJsonParse(profile.preferredAgeGroups, null),
-      responsibilities: safeJsonParse(profile.responsibilities, null),
-      dietaryPreferences: safeJsonParse(profile.dietaryPreferences, null),
-      benefitsRequired: safeJsonParse(profile.benefitsRequired, null),
-      conversationHistory: safeJsonParse(profile.conversationHistory, null),
+    // Parse JSON fields back to objects/arrays and filter out nulls
+    const parsed: any = {
+      id: profile.id,
+      status: profile.status,
+      createdAt: profile.createdAt,
+      updatedAt: profile.updatedAt,
     }
+
+    // Only include non-null fields
+    if (profile.location) parsed.location = profile.location
+    if (profile.languages) parsed.languages = safeJsonParse(profile.languages, null)
+    if (profile.careTypes) parsed.careTypes = safeJsonParse(profile.careTypes, null)
+    if (profile.hourlyRate) parsed.hourlyRate = profile.hourlyRate
+    if (profile.qualifications) parsed.qualifications = safeJsonParse(profile.qualifications, null)
+    if (profile.startDate) parsed.startDate = profile.startDate
+    if (profile.generalAvailability) parsed.generalAvailability = profile.generalAvailability
+    if (profile.yearsOfExperience) parsed.yearsOfExperience = safeJsonParse(profile.yearsOfExperience, null)
+    if (profile.weeklyHours) parsed.weeklyHours = profile.weeklyHours
+    if (profile.preferredAgeGroups) parsed.preferredAgeGroups = safeJsonParse(profile.preferredAgeGroups, null)
+    if (profile.responsibilities) parsed.responsibilities = safeJsonParse(profile.responsibilities, null)
+    if (profile.commuteDistance) parsed.commuteDistance = profile.commuteDistance
+    if (profile.commuteType) parsed.commuteType = profile.commuteType
+    if (profile.willDriveChildren) parsed.willDriveChildren = profile.willDriveChildren
+    if (profile.accessibilityNeeds) parsed.accessibilityNeeds = profile.accessibilityNeeds
+    if (profile.dietaryPreferences) parsed.dietaryPreferences = safeJsonParse(profile.dietaryPreferences, null)
+    if (profile.additionalChildRate) parsed.additionalChildRate = profile.additionalChildRate
+    if (profile.payrollRequired) parsed.payrollRequired = profile.payrollRequired
+    if (profile.benefitsRequired) parsed.benefitsRequired = safeJsonParse(profile.benefitsRequired, null)
+    if (profile.profilePictureUrl) parsed.profilePictureUrl = profile.profilePictureUrl
+    if (profile.conversationHistory) parsed.conversationHistory = safeJsonParse(profile.conversationHistory, null)
 
     return NextResponse.json(parsed)
   } catch (error) {
