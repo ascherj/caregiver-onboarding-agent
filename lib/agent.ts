@@ -22,9 +22,8 @@ export async function* streamChatResponse(
       ...messages,
     ],
     tools: [updateCaregiverProfileTool],
-    tool_choice: 'auto',
     stream: true,
-    temperature: 0.7,
+    temperature: 0.8,
   })
 
   let functionCallBuffer = {

@@ -29,7 +29,7 @@ export const updateCaregiverProfileTool = {
   type: "function" as const,
   function: {
     name: "update_caregiver_profile",
-    description: "Extract and update caregiver profile information from the conversation. Call this whenever the user provides information that should be stored in their profile.",
+    description: "CRITICAL: Extract and save caregiver profile information. Call this IMMEDIATELY when the user provides ANY profile data (location, languages, care types, rate, qualifications, availability, etc.). Include only the fields mentioned by the user. You can call this multiple times to update different fields.",
     parameters: {
       type: "object",
       properties: {
