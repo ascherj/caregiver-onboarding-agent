@@ -24,18 +24,28 @@ export async function GET(req: NextRequest) {
       )
     }
 
+    // Helper to safely parse JSON fields
+    const safeJsonParse = (value: string | null, defaultValue: any) => {
+      if (!value || value === 'null') return defaultValue
+      try {
+        return JSON.parse(value)
+      } catch {
+        return defaultValue
+      }
+    }
+
     // Parse JSON fields back to objects/arrays
     const parsed = {
       ...profile,
-      languages: profile.languages ? JSON.parse(profile.languages) : [],
-      careTypes: profile.careTypes ? JSON.parse(profile.careTypes) : [],
-      qualifications: profile.qualifications ? JSON.parse(profile.qualifications) : [],
-      yearsOfExperience: profile.yearsOfExperience ? JSON.parse(profile.yearsOfExperience) : {},
-      preferredAgeGroups: profile.preferredAgeGroups ? JSON.parse(profile.preferredAgeGroups) : [],
-      responsibilities: profile.responsibilities ? JSON.parse(profile.responsibilities) : [],
-      dietaryPreferences: profile.dietaryPreferences ? JSON.parse(profile.dietaryPreferences) : [],
-      benefitsRequired: profile.benefitsRequired ? JSON.parse(profile.benefitsRequired) : [],
-      conversationHistory: profile.conversationHistory ? JSON.parse(profile.conversationHistory) : [],
+      languages: safeJsonParse(profile.languages, null),
+      careTypes: safeJsonParse(profile.careTypes, null),
+      qualifications: safeJsonParse(profile.qualifications, null),
+      yearsOfExperience: safeJsonParse(profile.yearsOfExperience, null),
+      preferredAgeGroups: safeJsonParse(profile.preferredAgeGroups, null),
+      responsibilities: safeJsonParse(profile.responsibilities, null),
+      dietaryPreferences: safeJsonParse(profile.dietaryPreferences, null),
+      benefitsRequired: safeJsonParse(profile.benefitsRequired, null),
+      conversationHistory: safeJsonParse(profile.conversationHistory, null),
     }
 
     return NextResponse.json(parsed)

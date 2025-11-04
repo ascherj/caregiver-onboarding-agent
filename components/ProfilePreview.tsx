@@ -12,14 +12,16 @@ export default function ProfilePreview({ profile }: ProfilePreviewProps) {
   }
 
   const renderField = (label: string, value: any) => {
-    if (!value) return null
+    // Filter out null, undefined, empty arrays, empty objects, and string 'null'
+    if (value === null || value === undefined || value === 'null') return null
     if (Array.isArray(value) && value.length === 0) return null
-    if (typeof value === 'object' && Object.keys(value).length === 0) return null
+    if (typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length === 0) return null
+    if (typeof value === 'string' && value.trim() === '') return null
 
     let displayValue = value
     if (Array.isArray(value)) {
       displayValue = value.join(', ')
-    } else if (typeof value === 'object') {
+    } else if (typeof value === 'object' && value !== null) {
       displayValue = Object.entries(value)
         .map(([k, v]) => `${k}: ${v} years`)
         .join(', ')
@@ -59,9 +61,10 @@ export default function ProfilePreview({ profile }: ProfilePreviewProps) {
 
   const filledCount = fields.filter(f => {
     const value = profile[f.key]
-    if (!value) return false
+    if (value === null || value === undefined || value === 'null') return false
+    if (typeof value === 'string' && value.trim() === '') return false
     if (Array.isArray(value)) return value.length > 0
-    if (typeof value === 'object') return Object.keys(value).length > 0
+    if (typeof value === 'object' && !Array.isArray(value)) return Object.keys(value).length > 0
     return true
   }).length
 
