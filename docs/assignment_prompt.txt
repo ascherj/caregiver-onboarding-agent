@@ -1,0 +1,129 @@
+Goal
+Build a small app where a chat agent onboards a caregiver. It should conversationally collect and persist the fields in the schema below, from chat-style text or voice notes, and reply in 1–2 messages per turn. It must know when to stop once it has “enough” information.
+
+
+AI tools are allowed and encouraged, disclose exactly what you used.
+
+
+Do what you can in 48 hours, do not spend more time than that.
+
+What to Build (MVP)
+Chat UI (web is fine) that simulates SMS:
+
+User can send text or upload a voice note (≤60s).
+
+Agent replies in 1–2 concise messages.
+
+Voice support:
+
+Convert voice note → text (STT).
+
+Agent responds normally based on the transcript.
+
+Agent logic:
+
+Extract relevant facts.
+
+Ask for missing or ambiguous items.
+
+Stop when the record is reasonably complete; say a friendly wrap-up line.
+
+Persistence:
+
+Save collected fields to a data store that matches the schema — this can be an in-memory DB for purposes of the exercise.
+
+Show a live “profile preview” pane so we can see what’s been captured.
+
+Disclosure:
+
+Include a short AI usage note in README (models, prompts, libraries, how/where used).
+
+
+Caregiver Schema
+location: text("location"),
+profilePictureUrl: text("profilePictureUrl"),
+status: text("status").notNull().default("in_progress"),
+qualifications: text("qualifications").array(),
+languages: text("languages").array(),
+startDate: text("startDate"),
+generalAvailability: text("generalAvailability"),
+preferredAgeGroups: text("preferredAgeGroups").array(),
+weeklyHours: text("weeklyHours"),
+commuteDistance: text("commuteDistance"),
+commuteType: text("commuteType"),
+willDriveChildren: text("willDriveChildren"),
+accessibilityNeeds: text("accessibilityNeeds"),
+dietaryPreferences: text("dietaryPreferences").array(),
+yearsOfExperience: json("yearsOfExperience"), // breakdown by type
+responsibilities: text("responsibilities").array(),
+hourlyRate: text("hourlyRate"),
+additionalChildRate: text("additionalChildRate"),
+payrollRequired: text("payrollRequired"),
+benefitsRequired: text("benefitsRequired").array(),
+careTypes: text("careTypes").array(),
+
+Notes
+
+Treat all fields as optional during collection except those critical for a viable profile: location, languages, careTypes,  hourlyRate
+
+
+Voice & Tone (make it feel human)
+Warm, clear, and efficient. No corporate bot tone.
+
+Acknowledge what the caregiver just said; avoid repeating questions verbatim.
+
+Use 1–2 messages max per turn. Prefer one.
+
+Confirm inferred details gently: “Sounds like weekdays 9–5, did I get that right?”
+
+Knows when to stop: if all critical fields + majority of optional fields are captured or user signals fatigue, wrap up with a summary + next steps.
+
+
+Conversation Behavior Requirements
+Memory & extraction: Parse free-form text/voice into fields; fill arrays and JSONs reasonably.
+
+Context carryover: Don’t re-ask answered items; ask the next best question.
+
+Ambiguity handling: If a statement is unclear (“I’m free afternoons”), store it and ask a light clarifier (“Which days?”).
+
+Stop condition:
+
+Collected ≥80% of fields or user says “that’s enough”.
+
+Send short recap of captured info.
+
+Ask for one missing high-value item if any (e.g., rate).
+
+Provide a link/button to upload resume/profile photo (optional).
+
+Safety: No sensitive data beyond what’s in schema; never ask for SSN, DOB, or home address.
+
+
+Suggested Stack (not required)
+Frontend: Next.js/React (or anything fast). Simple chat pane + profile preview.
+
+Agent: Your choice (OpenAI function calling, toolformer, RAG, custom rules). Show how you extract + map to schema.
+
+Store: SQLite/Postgres/Prisma/Drizzle—anything we can run locally.
+
+Auth: Not required, but give your suggestion on what you'd use if this were productionized.
+
+
+What to Submit
+Repo with:
+
+README.md including:
+
+How to run locally (2–3 commands).
+
+AI usage disclosure (models, prompts, where/why).
+
+Design notes: your state machine/flow, stop condition, and extraction approach.
+
+Minimal seed script or demo script.
+
+Live demo (we'll schedule time):
+
+One text flow, one voice flow.
+
+Stop behavior and saved record view.

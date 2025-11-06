@@ -148,7 +148,7 @@ Implemented in system prompt (`lib/prompts.ts:54-62`):
 
 ### Modular Agentic Architecture
 
-Inspired by production-grade agent systems (see `docs/AGENTIC_ARCHITECTURE_GUIDE.md`):
+Inspired by production-grade agent systems (see `docs/agentic-architecture-guide.md`):
 
 ```
 lib/

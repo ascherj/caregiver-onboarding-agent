@@ -159,8 +159,10 @@ caregiver-agent/
 │   ├── incomplete-data.md      # Partial information flow
 │   └── edge-cases.md           # Error handling scenarios
 │
-├── planning/
-│   └── implementation-plan.md  # This file
+├── docs/
+│   ├── planning/
+│   │   └── implementation-plan.md  # This file
+│   └── reference/               # Technical documentation
 │
 ├── .env.example
 ├── .env
