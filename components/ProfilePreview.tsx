@@ -16,15 +16,20 @@ export default function ProfilePreview({ profile }: ProfilePreviewProps) {
     if (value === null || value === undefined || value === 'null' || value === ':null' || value === '/' || value === '.') return null
     if (Array.isArray(value) && value.length === 0) return null
     if (typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length === 0) return null
-    if (typeof value === 'string' && value.trim() === '') return null
+    if (typeof value === 'string' && (value.trim() === '' || value.trim() === 'null' || value.includes(',null'))) return null
 
     let displayValue = value
     if (Array.isArray(value)) {
-      displayValue = value.join(', ')
+      // Filter out null values from arrays before joining
+      const filtered = value.filter(v => v !== null && v !== undefined && v !== 'null')
+      if (filtered.length === 0) return null
+      displayValue = filtered.join(', ')
     } else if (typeof value === 'object' && value !== null) {
       displayValue = Object.entries(value)
+        .filter(([k, v]) => v !== null && v !== undefined && v !== 'null')
         .map(([k, v]) => `${k}: ${v} years`)
         .join(', ')
+      if (displayValue === '') return null
     }
 
     return (
@@ -62,9 +67,15 @@ export default function ProfilePreview({ profile }: ProfilePreviewProps) {
   const filledCount = fields.filter(f => {
     const value = profile[f.key]
     if (value === null || value === undefined || value === 'null' || value === ':null' || value === '/' || value === '.') return false
-    if (typeof value === 'string' && value.trim() === '') return false
-    if (Array.isArray(value)) return value.length > 0
-    if (typeof value === 'object' && !Array.isArray(value)) return Object.keys(value).length > 0
+    if (typeof value === 'string' && (value.trim() === '' || value.trim() === 'null' || value.includes(',null'))) return false
+    if (Array.isArray(value)) {
+      const filtered = value.filter(v => v !== null && v !== undefined && v !== 'null')
+      return filtered.length > 0
+    }
+    if (typeof value === 'object' && !Array.isArray(value)) {
+      const validEntries = Object.entries(value).filter(([k, v]) => v !== null && v !== undefined && v !== 'null')
+      return validEntries.length > 0
+    }
     return true
   }).length
 

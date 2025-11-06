@@ -98,27 +98,41 @@ export function fromDBFormat(
   dbData: any
 ): Partial<CaregiverProfile> {
   const data: any = {}
-  
+
   for (const [key, value] of Object.entries(dbData)) {
     if (value === null || value === undefined) {
       continue
     }
-    
+
     // Parse JSON strings back to arrays/objects
     if (typeof value === 'string') {
+      // Skip placeholder values
+      if (value === 'null' || value === ':null' || value === '/' || value === '.' || value.trim() === '') {
+        continue
+      }
+
       // Try to parse as JSON
       try {
         const parsed = JSON.parse(value)
-        data[key] = parsed
+
+        // Filter out null values from arrays
+        if (Array.isArray(parsed)) {
+          const filtered = parsed.filter(v => v !== null && v !== undefined && v !== 'null')
+          if (filtered.length > 0) {
+            data[key] = filtered
+          }
+        } else if (parsed !== null && parsed !== undefined && parsed !== 'null') {
+          data[key] = parsed
+        }
       } catch {
-        // Not JSON, keep as string
+        // Not JSON, keep as string (but not if it's a placeholder)
         data[key] = value
       }
     } else {
       data[key] = value
     }
   }
-  
+
   return data
 }
 

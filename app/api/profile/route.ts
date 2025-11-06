@@ -28,7 +28,13 @@ export async function GET(req: NextRequest) {
     const safeJsonParse = (value: string | null, defaultValue: any) => {
       if (!value || value === 'null' || value === ':null' || value === '/' || value === '.' || value.trim() === '') return defaultValue
       try {
-        return JSON.parse(value)
+        const parsed = JSON.parse(value)
+        // Filter out null values from arrays
+        if (Array.isArray(parsed)) {
+          const filtered = parsed.filter(v => v !== null && v !== undefined && v !== 'null')
+          return filtered.length > 0 ? filtered : defaultValue
+        }
+        return parsed
       } catch {
         return defaultValue
       }
@@ -43,7 +49,11 @@ export async function GET(req: NextRequest) {
     }
 
     // Only include non-null, non-empty, non-placeholder fields
-    const isValidValue = (val: any) => val && val !== '/' && val !== '.' && val !== ':null' && val !== 'null' && val.trim() !== ''
+    const isValidValue = (val: any) => {
+      if (!val) return false
+      if (typeof val !== 'string') return true
+      return val !== '/' && val !== '.' && val !== ':null' && val !== 'null' && val.trim() !== ''
+    }
 
     if (isValidValue(profile.location)) parsed.location = profile.location
     if (isValidValue(profile.languages)) parsed.languages = safeJsonParse(profile.languages, null)
