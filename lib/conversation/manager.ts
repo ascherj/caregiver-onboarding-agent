@@ -126,20 +126,24 @@ export async function addMessageToConversation(
 /**
  * Load conversation history for LLM context
  * Returns messages formatted for LLM consumption
+ * Implements sliding window to keep most recent messages
  */
 export async function getConversationHistory(
   conversationId: string,
-  maxMessages?: number
+  maxMessages: number = 20
 ): Promise<Result<Message[]>> {
   try {
-    const messages = await prisma.conversationMessage.findMany({
+    // Fetch all messages, then slice to get most recent
+    const allMessages = await prisma.conversationMessage.findMany({
       where: { conversationId },
-      orderBy: { timestamp: 'asc' },
-      take: maxMessages
+      orderBy: { timestamp: 'asc' }
     })
 
+    // Apply sliding window - keep most recent maxMessages
+    const recentMessages = allMessages.slice(-maxMessages)
+
     const formatted: Message[] = []
-    for (const msg of messages) {
+    for (const msg of recentMessages) {
       formatted.push({
         role: 'user',
         content: msg.userMessage

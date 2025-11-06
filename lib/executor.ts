@@ -36,9 +36,10 @@ export async function* executeConversationTurn(
 
   const conversation = convResult.data
 
-  // 2. Load conversation history for context
+  // 2. Load conversation history for context (limit to 20 most recent messages)
   const historyResult = await getConversationHistory(
-    conversation.conversationId
+    conversation.conversationId,
+    20
   )
   if (!historyResult.success) {
     yield {

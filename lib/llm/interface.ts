@@ -39,7 +39,7 @@ export async function sendToLLM(
       ],
       response_format: zodResponseFormat(agentResponseSchema, 'agent_response'),
       temperature: 0.8,
-      max_tokens: 2000,
+      max_tokens: 4000,
     })
 
     const choice = completion.choices[0]
@@ -55,6 +55,7 @@ export async function sendToLLM(
     // Check if response was truncated due to token limit
     if (choice?.finish_reason === 'length') {
       console.error('Response truncated due to max_tokens limit')
+      console.error('Response length:', response.length)
       console.error('Partial response:', response.substring(0, 200))
       return {
         success: false,
@@ -116,7 +117,7 @@ export async function* streamLLMResponse(
       ],
       response_format: zodResponseFormat(agentResponseSchema, 'agent_response'),
       temperature: 0.8,
-      max_tokens: 2000,
+      max_tokens: 4000,
     })
 
     const choice = completion.choices[0]
