@@ -163,7 +163,7 @@ caregiver-agent/
 │   └── implementation-plan.md  # This file
 │
 ├── .env.example
-├── .env.local
+├── .env
 ├── .gitignore
 ├── next.config.js
 ├── tailwind.config.ts
@@ -434,7 +434,7 @@ This application uses OpenAI's GPT-4o for conversational AI and Whisper for spee
 ## Setup
 1. Clone repository
 2. Install dependencies: `npm install`
-3. Set up environment: Copy `.env.example` to `.env.local`
+3. Set up environment: Copy `.env.example` to `.env`
 4. Initialize database: `npx prisma migrate dev`
 5. Run development server: `npm run dev`
 

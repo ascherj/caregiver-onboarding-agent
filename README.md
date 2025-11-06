@@ -6,6 +6,7 @@ A conversational AI agent that onboards caregivers by collecting profile informa
 
 ```bash
 npm install
+cp .env.example .env  # Add your OPENAI_API_KEY
 npx prisma generate
 npm run dev
 ```
@@ -22,7 +23,23 @@ Open [http://localhost:3000](http://localhost:3000) and start chatting!
 
 ## AI Usage Disclosure
 
-### Models
+### Development Tools
+
+This project was built with AI-assisted development tools:
+
+- **[Claude Code](https://www.claude.com/product/claude-code), [OpenCode](https://opencode.ai/docs/), & [Cursor](https://cursor.com/)**: Primary coding agents for implementation
+  - Used for: Code generation, architecture design, debugging, and refactoring
+  - Why: Accelerated development while maintaining code quality and consistency
+
+- **Claude Sonnet 4.5 (with extended thinking)**: Planning and design
+  - Used for: Constructing Product Requirements Document (PRD) and implementation strategy
+  - Why: Deep reasoning for architectural decisions and requirement analysis
+
+- **Wispr Flow**: Speech-to-text input for development
+  - Used for: Voice-driven interaction with coding agents
+  - Why: Faster natural language communication during development
+
+### Models (in Application)
 
 - **GPT-4o (gpt-4o-2024-08-06)**: Primary conversational agent
   - Used for: Understanding user intent, extracting structured data, generating natural responses
@@ -137,10 +154,10 @@ Inspired by production-grade agent systems (see `docs/AGENTIC_ARCHITECTURE_GUIDE
 lib/
 ├── executor.ts          # Main orchestrator (entry point for conversation turns)
 ├── conversation/        # Conversation lifecycle management
-│   ├── manager.ts       # CRUD operations for conversations
+│   ├── manager.ts       # CRUD operations, sliding window context
 │   └── types.ts         # Type definitions
 ├── llm/                 # LLM integration layer
-│   └── interface.ts     # Streaming responses, token management
+│   └── interface.ts     # Streaming, token management, context formatting
 ├── tools/               # Data processing utilities
 │   ├── extractor.ts     # Field extraction and validation
 │   └── validator.ts     # Schema validation
@@ -152,6 +169,8 @@ lib/
 - Testable in isolation
 - Easy to extend with new fields or validation rules
 - Production-ready error handling
+- Sliding window context management (last 20 messages)
+- Auto-focus UX for seamless conversation flow
 
 ## Schema
 
@@ -162,6 +181,30 @@ All 19 fields from assignment spec implemented in `prisma/schema.prisma`:
 **Optional**: preferredAgeGroups, responsibilities, commuteDistance, commuteType, willDriveChildren, accessibilityNeeds, dietaryPreferences, additionalChildRate, payrollRequired, benefitsRequired
 
 **Additional system fields**: status, profilePictureUrl, createdAt, updatedAt
+
+## Recent Improvements
+
+The application has been iteratively refined based on real-world testing:
+
+### Performance & Reliability
+- **Sliding window context** (lib/llm/interface.ts:222): Maintains last 20 messages to prevent token overflow in long conversations
+- **4000 token limit** (lib/llm/interface.ts:42): Increased from 2000 to accommodate final summaries while preventing truncation
+- **Token limit safeguards** (lib/llm/interface.ts:56): Detects truncated responses and prompts retry without data loss
+
+### User Experience
+- **Auto-focus input** (components/ChatInterface.tsx:150): Input field refocuses after each message for seamless typing flow
+- **Null value filtering** (components/ProfilePreview.tsx:16): Profile preview hides empty/placeholder fields for clean display
+- **Completion tracking** (components/ProfilePreview.tsx:67): Real-time percentage calculation excludes null values
+
+### Data Quality
+- **Placeholder filtering** (lib/tools/extractor.ts): Removes `.`, `/`, `:null`, `null` strings before storage
+- **Array null filtering** (components/ProfilePreview.tsx:24): Arrays cleaned of null entries before display
+- **Numeric validation** (lib/prompts.ts:30): Rejects vague answers like "all" or "lots" for yearsOfExperience
+
+### Error Handling
+- **Stream error recovery** (lib/llm/interface.ts:126): Graceful fallback when LLM responses fail to parse
+- **Response cleanup** (lib/llm/interface.ts:198): Removes meta-references like "based on the extracted data"
+- **Parse error logging** (lib/llm/interface.ts:150): Detailed error context for debugging truncation issues
 
 ## Testing the Application
 
@@ -244,12 +287,14 @@ model CaregiverProfile {
 
 ### Environment Variables
 
-Copy `.env.example` to `.env.local`:
+Copy `.env.example` to `.env`:
 
 ```bash
 OPENAI_API_KEY=sk-...
 DATABASE_URL="file:./dev.db"
 ```
+
+**Note**: Use `.env` (not `.env.local`) to ensure compatibility with both Next.js and Prisma CLI tools.
 
 ### Database Management
 
@@ -278,7 +323,3 @@ npm start                      # Production server
 ## License
 
 Private assessment project - not for distribution
-
----
-
-Built with Claude Code - Time spent: ~48 hours
