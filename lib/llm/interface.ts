@@ -39,9 +39,11 @@ export async function sendToLLM(
       ],
       response_format: zodResponseFormat(agentResponseSchema, 'agent_response'),
       temperature: 0.8,
+      max_tokens: 1000,
     })
 
-    const response = completion.choices[0]?.message?.content
+    const choice = completion.choices[0]
+    const response = choice?.message?.content
 
     if (!response) {
       return {
@@ -50,7 +52,32 @@ export async function sendToLLM(
       }
     }
 
-    const parsed = JSON.parse(response) as AgentResponse
+    // Check if response was truncated due to token limit
+    if (choice?.finish_reason === 'length') {
+      console.error('Response truncated due to max_tokens limit')
+      console.error('Partial response:', response.substring(0, 200))
+      return {
+        success: false,
+        error: 'I need to keep my responses shorter. Please try sending your message again.',
+        details: 'Token limit exceeded - no data was saved'
+      }
+    }
+
+    let parsed: AgentResponse
+    try {
+      parsed = JSON.parse(response) as AgentResponse
+    } catch (parseError: any) {
+      console.error('JSON Parse Error in sendToLLM:', parseError)
+      console.error('Response length:', response.length)
+      console.error('Response preview:', response.substring(0, 500))
+      console.error('Finish reason:', choice?.finish_reason)
+
+      return {
+        success: false,
+        error: 'Unable to parse AI response. Please try again.',
+        details: parseError.message
+      }
+    }
     
     // Clean the response message
     const cleanedMessage = cleanResponse(parsed.message)
@@ -89,9 +116,11 @@ export async function* streamLLMResponse(
       ],
       response_format: zodResponseFormat(agentResponseSchema, 'agent_response'),
       temperature: 0.8,
+      max_tokens: 1000,
     })
 
-    const response = completion.choices[0]?.message?.content
+    const choice = completion.choices[0]
+    const response = choice?.message?.content
 
     if (!response) {
       yield {
@@ -101,7 +130,34 @@ export async function* streamLLMResponse(
       return
     }
 
-    const parsed = JSON.parse(response) as AgentResponse
+    // Check if response was truncated due to token limit
+    if (choice?.finish_reason === 'length') {
+      console.error('Response truncated due to max_tokens limit')
+      console.error('Response length:', response.length)
+      console.error('Partial response:', response.substring(0, 200))
+      yield {
+        type: 'error',
+        error: 'I need to keep my responses shorter. Please try sending your message again - no data was saved from this attempt.'
+      }
+      return
+    }
+
+    let parsed: AgentResponse
+    try {
+      parsed = JSON.parse(response) as AgentResponse
+    } catch (parseError: any) {
+      console.error('JSON Parse Error:', parseError)
+      console.error('Response length:', response.length)
+      console.error('Response preview:', response.substring(0, 500))
+      console.error('Response end:', response.substring(Math.max(0, response.length - 500)))
+      console.error('Finish reason:', choice?.finish_reason)
+
+      yield {
+        type: 'error',
+        error: 'Unable to parse AI response. Please try again.'
+      }
+      return
+    }
     
     // Clean the response message
     const message = cleanResponse(parsed.message)
