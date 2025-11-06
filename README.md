@@ -1,5 +1,11 @@
 # Caregiver Onboarding Agent
 
+## Demo
+
+![Demo](docs/rosie_demo.gif)
+
+## Overview
+
 A conversational AI agent that onboards caregivers by collecting profile information through natural chat interactions, supporting both text and voice input.
 
 ## Quick Start
