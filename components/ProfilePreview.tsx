@@ -12,8 +12,8 @@ export default function ProfilePreview({ profile }: ProfilePreviewProps) {
   }
 
   const renderField = (label: string, value: any) => {
-    // Filter out null, undefined, empty arrays, empty objects, and string 'null'
-    if (value === null || value === undefined || value === 'null') return null
+    // Filter out null, undefined, empty arrays, empty objects, and placeholder values
+    if (value === null || value === undefined || value === 'null' || value === ':null' || value === '/' || value === '.') return null
     if (Array.isArray(value) && value.length === 0) return null
     if (typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length === 0) return null
     if (typeof value === 'string' && value.trim() === '') return null
@@ -61,7 +61,7 @@ export default function ProfilePreview({ profile }: ProfilePreviewProps) {
 
   const filledCount = fields.filter(f => {
     const value = profile[f.key]
-    if (value === null || value === undefined || value === 'null') return false
+    if (value === null || value === undefined || value === 'null' || value === ':null' || value === '/' || value === '.') return false
     if (typeof value === 'string' && value.trim() === '') return false
     if (Array.isArray(value)) return value.length > 0
     if (typeof value === 'object' && !Array.isArray(value)) return Object.keys(value).length > 0

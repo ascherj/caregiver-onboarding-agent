@@ -66,12 +66,18 @@ export function toDBFormat(
   data: Partial<CaregiverProfile>
 ): Record<string, any> {
   const dbData: Record<string, any> = {}
-  
+
   for (const [key, value] of Object.entries(data)) {
-    if (value === null || value === undefined) {
+    // Filter out null, undefined, empty strings, and placeholder values
+    if (value === null || value === undefined || value === '' || value === '/' || value === '.' || value === ':null' || value === 'null') {
       continue
     }
-    
+
+    // Filter out empty arrays
+    if (Array.isArray(value) && value.length === 0) {
+      continue
+    }
+
     // Serialize arrays and objects to JSON strings
     if (Array.isArray(value)) {
       dbData[key] = JSON.stringify(value)
@@ -81,7 +87,7 @@ export function toDBFormat(
       dbData[key] = value
     }
   }
-  
+
   return dbData
 }
 
@@ -123,12 +129,17 @@ export function getExtractedFields(
   data: Partial<CaregiverProfile>
 ): string[] {
   const fields: string[] = []
-  
+
   for (const [key, value] of Object.entries(data)) {
-    if (value !== null && value !== undefined) {
+    // Only include fields with actual values (not null, undefined, empty, or placeholder values)
+    if (value !== null && value !== undefined && value !== '' && value !== '/' && value !== '.' && value !== ':null' && value !== 'null') {
+      // Skip empty arrays
+      if (Array.isArray(value) && value.length === 0) {
+        continue
+      }
       fields.push(key)
     }
   }
-  
+
   return fields
 }
