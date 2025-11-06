@@ -39,7 +39,7 @@ export async function sendToLLM(
       ],
       response_format: zodResponseFormat(agentResponseSchema, 'agent_response'),
       temperature: 0.8,
-      max_tokens: 1000,
+      max_tokens: 2000,
     })
 
     const choice = completion.choices[0]
@@ -116,7 +116,7 @@ export async function* streamLLMResponse(
       ],
       response_format: zodResponseFormat(agentResponseSchema, 'agent_response'),
       temperature: 0.8,
-      max_tokens: 1000,
+      max_tokens: 2000,
     })
 
     const choice = completion.choices[0]
