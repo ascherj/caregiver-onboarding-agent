@@ -232,15 +232,41 @@ The application has been iteratively refined based on real-world testing:
 - Placeholder values automatically filtered from display
 - Only meaningful data shown in preview panel
 
-## CLI Tools
+## Demo Script
+
+The CLI tool serves as a demo interface for inspecting conversations and database state:
 
 ```bash
-# Manage conversations directly
-npm run cli -- list              # List all conversations
-npm run cli -- show <id>         # Show conversation details
-npm run cli -- end               # End current conversation
-npm run cli -- new               # Start new conversation
+# List all profiles and conversations
+npm run cli -- list
+
+# Show full conversation history with extracted data
+npm run cli -- show <conversationId>
+
+# Show conversation statistics (completion, duration, fields extracted)
+npm run cli -- stats <conversationId>
+
+# View analytics across all conversations
+npm run cli -- analytics
+
+# Export conversation to JSON file
+npm run cli -- export <conversationId> output.json
+
+# Mark conversation as completed
+npm run cli -- end <conversationId>
 ```
+
+**Visual database inspection:**
+```bash
+npx prisma studio  # Opens at http://localhost:5555
+```
+
+**Typical demo workflow:**
+1. Run the app and complete a conversation
+2. Use `npm run cli -- list` to see all profiles/conversations
+3. Use `npm run cli -- show <id>` to view full conversation transcript
+4. Use `npm run cli -- stats <id>` to see completion percentage and extracted fields
+5. Use `npx prisma studio` to inspect raw database records
 
 ## Production Recommendations
 
