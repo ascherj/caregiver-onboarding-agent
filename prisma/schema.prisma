@@ -44,5 +44,50 @@ model CaregiverProfile {
   // Metadata
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
-  conversationHistory String?  // JSON array of messages
+  conversationHistory String?  // JSON array of messages - kept for backward compatibility
+  
+  // Relationships
+  conversations       ConversationLog[]
+}
+
+// Tracks conversation lifecycle
+model ConversationLog {
+  id              String   @id @default(cuid())
+  profileId       String
+  conversationId  String   @unique
+  status          String   @default("active") // active, completed, abandoned
+  startedAt       DateTime @default(now())
+  lastUpdatedAt   DateTime @updatedAt
+  version         Int      @default(1) // For migration support
+  
+  messages        ConversationMessage[]
+  profile         CaregiverProfile @relation(fields: [profileId], references: [id])
+  
+  @@index([profileId])
+  @@index([status])
+}
+
+// Tracks individual message exchanges
+model ConversationMessage {
+  id                 String   @id @default(cuid())
+  conversationId     String
+  timestamp          DateTime @default(now())
+  
+  // User input
+  userMessage        String
+  
+  // Agent output
+  agentResponse      String
+  
+  // Raw LLM response (for debugging)
+  llmRawResponse     String   // Full structured output from LLM
+  
+  // Extraction tracking
+  extractedData      String?  // JSON of what was extracted this turn
+  extractedFields    String?  // JSON array of field names extracted
+  
+  conversation       ConversationLog @relation(fields: [conversationId], references: [conversationId], onDelete: Cascade)
+  
+  @@index([conversationId])
+  @@index([timestamp])
 }

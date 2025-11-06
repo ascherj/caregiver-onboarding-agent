@@ -50,7 +50,7 @@ export default function ChatInterface({ profileId, onProfileUpdate }: ChatInterf
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          messages: updatedMessages,
+          message: content,
           profileId,
         }),
       })
