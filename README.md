@@ -6,8 +6,8 @@ A conversational AI agent that onboards caregivers by collecting profile informa
 
 ```bash
 npm install
-cp .env.example .env  # Add your OPENAI_API_KEY
-npx prisma generate
+cp .env.example .env         # Add your OPENAI_API_KEY
+npx prisma migrate deploy    # Create database and apply migrations
 npm run dev
 ```
 
