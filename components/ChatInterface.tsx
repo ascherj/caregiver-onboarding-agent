@@ -19,6 +19,7 @@ export default function ChatInterface({ profileId, onProfileUpdate }: ChatInterf
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     // Send initial greeting
@@ -35,6 +36,13 @@ export default function ChatInterface({ profileId, onProfileUpdate }: ChatInterf
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  useEffect(() => {
+    // Refocus input after loading completes
+    if (!isLoading) {
+      inputRef.current?.focus()
+    }
+  }, [isLoading])
 
   const sendMessage = async (content: string) => {
     if (!content.trim() || isLoading) return
@@ -139,6 +147,7 @@ export default function ChatInterface({ profileId, onProfileUpdate }: ChatInterf
       <div className="bg-white border-t border-neutral-200 px-6 py-4">
         <form onSubmit={handleSubmit} className="flex gap-2">
           <input
+            ref={inputRef}
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
