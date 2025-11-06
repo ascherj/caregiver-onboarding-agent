@@ -22,14 +22,28 @@ export async function POST(req: NextRequest) {
         try {
           // Delegate to executor - it handles everything
           for await (const chunk of executeConversationTurn(profileId, message)) {
-            const data = JSON.stringify(chunk)
-            controller.enqueue(encoder.encode(`data: ${data}\n\n`))
+            try {
+              const data = JSON.stringify(chunk)
+              controller.enqueue(encoder.encode(`data: ${data}\n\n`))
+            } catch (enqueueError) {
+              console.error('Error enqueueing chunk:', enqueueError)
+              break
+            }
           }
-          
-          controller.close()
+
+          // Only close if not already closed
+          try {
+            controller.close()
+          } catch (closeError) {
+            console.error('Controller already closed:', closeError)
+          }
         } catch (error) {
           console.error('Stream error:', error)
-          controller.error(error)
+          try {
+            controller.error(error)
+          } catch (errorError) {
+            console.error('Error sending error to controller:', errorError)
+          }
         }
       },
     })
